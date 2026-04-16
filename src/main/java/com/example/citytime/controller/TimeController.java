@@ -14,7 +14,7 @@ public class TimeController {
     @GetMapping("/")
     public String home() {
         return "Şehir Saatleri API Aktif olmaya calisiyo Uygulama başarıyla CI/CD üzerinden Deploy edildi.<br>" +
-                "Örnek Kullanım: <a href='/api/time?timezone=Europe/Istanbul'>/api/time?timezone=Europe/Istanbul</a> <br>"
+                "Örnek kullanimi: <a href='/api/time?timezone=Europe/Istanbul'>/api/time?timezone=Europe/Istanbul</a> <br>"
                 +
                 "Örnek kullanimi: <a href='/api/time?timezone=Asia/Tokyo'>/api/time?timezone=Asia/Tokyo</a>";
     }
