@@ -7,27 +7,32 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class TimeController {
 
-    @GetMapping("/")
-    public String home() {
-        return "Şehir Saatleri API Aktif olmaya calisiyo Uygulama başarıyla CI/CD üzerinden Deploy edildi.<br>" +
-                "Örnek kullanimi: <a href='/api/time?timezone=Europe/Istanbul'>/api/time?timezone=Europe/Istanbul</a> <br>"
-                +
-                "ornek kullanimi: <a href='/api/time?timezone=Asia/Tokyo'>/api/time?timezone=Asia/Tokyo</a>";
-    }
+    // Artık ana sayfa görevini static/index.html yapacak, bu yüzden "/" metodunu kaldırdık
 
     @GetMapping("/api/time")
-    public String getCityTime(@RequestParam(defaultValue = "Europe/Istanbul") String timezone) {
+    public Map<String, String> getCityTime(@RequestParam(defaultValue = "Europe/Istanbul") String timezone) {
+        Map<String, String> response = new HashMap<>();
         try {
             ZoneId zoneId = ZoneId.of(timezone);
             ZonedDateTime now = ZonedDateTime.now(zoneId);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-            return "Seçili Bölge (" + timezone + ") için yerel saat: <b>" + now.format(formatter) + "</b>";
+            
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy, EEEE");
+            
+            response.put("status", "success");
+            response.put("time", now.format(timeFormatter));
+            response.put("date", now.format(dateFormatter));
+            response.put("region", timezone);
         } catch (Exception e) {
-            return "Hatalı saat dilimi formatı. Lütfen geçerli bir kıta/şehir giriniz. Örnek: Europe/London";
+            response.put("status", "error");
+            response.put("message", "Hatalı saat dilimi formatı!");
         }
+        return response;
     }
 }

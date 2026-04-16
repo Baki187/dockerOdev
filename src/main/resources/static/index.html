@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Saat | CI/CD Demo</title>
+    <!-- Modern Yazı Tipleri -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Canlı animasyonlu gradient arka plan */
+            background: linear-gradient(45deg, #0f172a, #1e1b4b, #170f2a);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            overflow: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Arka plan ışık küreleri */
+        .orb {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, rgba(0,0,0,0) 70%);
+            top: -100px;
+            left: -100px;
+            z-index: 0;
+        }
+
+        .orb2 {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(56,189,248,0.2) 0%, rgba(0,0,0,0) 70%);
+            bottom: -150px;
+            right: -100px;
+            z-index: 0;
+        }
+
+        /* Cam görünümlü (Glassmorphism) Ana Panel */
+        .glass-panel {
+            position: relative;
+            z-index: 10;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            padding: 3rem 4rem;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            min-width: 450px;
+        }
+
+        .glass-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.6);
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        /* Özel Select Tasarımı */
+        select {
+            appearance: none;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(10px);
+        }
+
+        select:hover, select:focus {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        select option {
+            background: #1e293b;
+            color: white;
+            padding: 10px;
+        }
+
+        .time-display {
+            font-size: 5.5rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .date-display {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            font-weight: 300;
+        }
+
+        /* Saat saniye noktalarının yanıp sönme efekti */
+        .pulse {
+            display: inline-block;
+            animation: pulse-op 1s infinite;
+        }
+
+        @keyframes pulse-op {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Arka Plan Süsleri -->
+    <div class="orb"></div>
+    <div class="orb2"></div>
+
+    <!-- Ana Ekran -->
+    <div class="glass-panel">
+        <div class="subtitle">Global Canlı Saat</div>
+        
+        <select id="citySelect">
+            <option value="Europe/Istanbul">İstanbul, Türkiye</option>
+            <option value="Europe/London">Londra, İngiltere</option>
+            <option value="Europe/Berlin">Berlin, Almanya</option>
+            <option value="America/New_York">New York, ABD</option>
+            <option value="Asia/Tokyo">Tokyo, Japonya</option>
+            <option value="Australia/Sydney">Sidney, Avustralya</option>
+        </select>
+        
+        <div>
+            <div class="time-display" id="timeValue">Yükleniyor</div>
+            <div class="date-display" id="dateValue">Lütfen bekleyin...</div>
+        </div>
+    </div>
+
+    <script>
+        const citySelect = document.getElementById('citySelect');
+        const timeValue = document.getElementById('timeValue');
+        const dateValue = document.getElementById('dateValue');
+
+        // Arka planda bizim Java (Spring Boot) API'mize bağlanıp saati çeker
+        async function fetchTime() {
+            const timezone = citySelect.value;
+            try {
+                // Java tarafında hazırladığımız /api/time uç noktasına istek atıyoruz
+                const response = await fetch(`/api/time?timezone=${encodeURIComponent(timezone)}`);
+                const data = await response.json();
+                
+                if(data.status === 'success') {
+                    const parts = data.time.split(':');
+                    timeValue.innerHTML = `${parts[0]}<span class="pulse">:</span>${parts[1]}<span class="pulse">:</span>${parts[2]}`;
+                    dateValue.innerText = data.date;
+                }
+            } catch (error) {
+                console.error("Sunucuya bağlanılamadı!", error);
+            }
+        }
+
+        // Açılır menüden şehir değiştiğinde zamanı anında güncelle
+        citySelect.addEventListener('change', () => {
+            fetchTime();
+        });
+
+        // Sayfa açıldığında saati çek ve ardından her 1 saniyede bir tiklemesini sağla
+        fetchTime();
+        setInterval(fetchTime, 1000);
+    </script>
+</body>
+</html>
